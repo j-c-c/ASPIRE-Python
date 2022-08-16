@@ -11,7 +11,7 @@ from pytest import raises, skip
 from aspire.utils import Rotation, grid_3d, powerset
 from aspire.utils.matrix import anorm
 from aspire.utils.types import utest_tolerance
-from aspire.volume import Volume, gaussian_blob_vols
+from aspire.volume import CnSymmetricVolume, Volume, gaussian_blob_vols
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "saved_test_data")
 
@@ -238,9 +238,9 @@ class VolumeTestCase(TestCase):
         for k, s in sym_type.items():
 
             # Build `Volume` instance with symmetry type s.
-            vol = gaussian_blob_vols(
-                L=L, C=1, symmetry_type=s, seed=0, dtype=self.dtype
-            )
+            vol = CnSymmetricVolume(L=L, C=1, symmetry_type=s, seed=0, dtype=self.dtype)
+
+            vol = vol.generate()
 
             # Build rotation matrices that rotate by multiples of 2pi/k about the z axis.
             angles = np.zeros(shape=(k, 3))

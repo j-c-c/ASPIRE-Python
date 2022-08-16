@@ -98,7 +98,7 @@ class CompactVolume(SyntheticVolumeBase):
         return Volume(vol)
 
 
-class CnSymmetricVolume(LegacyVolume):
+class CnSymmetricVolume(SyntheticVolumeBase):
     """
     A cyclically symmetric Volume constructed with random 3D Gaussian blobs.
     """
@@ -113,8 +113,21 @@ class CnSymmetricVolume(LegacyVolume):
         :param seed: Random seed for generating random Gaussian blobs.
         :param dtype: dtype for Volume(s)
         """
-        super().__init__(L, C, symmetry_type, K=K, seed=seed, dtype=dtype)
+        super().__init__(L, C, symmetry_type, seed=seed, dtype=dtype)
+        self.K = K
         assert self.symmetry_type is not None, "Symmetry was not provided."
+
+    def generate(self):
+        """
+        Called to generate and return an ASPIRE LegacyVolume as a Volume instance.
+        """
+        return gaussian_blob_vols(
+            L=self.L,
+            C=self.C,
+            symmetry_type=self.symmetry_type,
+            seed=self.seed,
+            dtype=self.dtype,
+        )
 
 
 class PDBVolume(SyntheticVolumeBase):
