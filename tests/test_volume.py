@@ -11,7 +11,7 @@ from pytest import raises, skip
 from aspire.utils import Rotation, grid_3d, powerset
 from aspire.utils.matrix import anorm
 from aspire.utils.types import utest_tolerance
-from aspire.volume import CnSymmetricVolume, Volume, gaussian_blob_vols
+from aspire.volume import CnSymmetricVolume, CompactVolume, Volume, gaussian_blob_vols
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "saved_test_data")
 
@@ -239,7 +239,6 @@ class VolumeTestCase(TestCase):
 
             # Build `Volume` instance with symmetry type s.
             vol = CnSymmetricVolume(L=L, C=1, symmetry_type=s, seed=0, dtype=self.dtype)
-
             vol = vol.generate()
 
             # Build rotation matrices that rotate by multiples of 2pi/k about the z axis.
@@ -269,6 +268,22 @@ class VolumeTestCase(TestCase):
         # Test we raise with expected message for junk symmetry.
         with raises(NotImplementedError, match=r"J type symmetry.*"):
             _ = gaussian_blob_vols(symmetry_type="junk")
+
+    def testCompactVolume(self):
+        L = self.res
+        dtype = self.dtype
+
+        vol = CompactVolume(L=L, C=1, symmetry_type=None, dtype=dtype)
+        vol = vol.generate()
+
+        # Mask to check support
+        g_3d = grid_3d(L, dtype=dtype)
+        inside = g_3d["r"] <= 1
+        outside = g_3d["r"] > 1
+
+        # Check that volume is zero outside of support and positive inside.
+        self.assertTrue(np.allclose(vol[0][outside], 0))
+        self.assertTrue(np.sum(vol[0][inside]) > 0)
 
     def to_vec(self):
         """Compute the to_vec method and compare."""
