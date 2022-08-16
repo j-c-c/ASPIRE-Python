@@ -13,7 +13,9 @@ from .misc import (  # isort:skip
     abs2,
     bump_3d,
     circ,
+    gaussian_1d,
     gaussian_2d,
+    gaussian_3d,
     get_full_version,
     inverse_r,
     powerset,
@@ -42,6 +44,12 @@ from .matrix import (
     vecmat_to_volmat,
     vol_to_vec,
     volmat_to_vecmat,
+)
+from .multiprocessing import (
+    mem_based_cpu_suggestion,
+    num_procs_suggestion,
+    physical_core_cpu_suggestion,
+    virtual_core_cpu_suggestion,
 )
 from .rotation import Rotation
 from .types import complex_type, real_type, utest_tolerance
