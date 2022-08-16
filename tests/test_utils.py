@@ -145,6 +145,7 @@ class UtilsTestCase(TestCase):
         # Test that the center is still 1
         self.assertTrue(np.allclose(bumped_volume[(L // 2,) * 3], 1))
 
+
 class MultiProcessingUtilsTestCase(TestCase):
     """
     Smoke tests.
