@@ -90,26 +90,6 @@ class Simulation(ImageSource):
             min_, max_ = 2.0 / 3, 3.0 / 2
             amplitudes = min_ + rand(n, seed=seed).astype(dtype) * (max_ - min_)
 
-        if L is None:
-            self.L = self.vols.resolution
-        else:
-            msg = (
-                f"Simulation must have the same resolution as the provided Volume."
-                f" vols.resolution = {self.vols.resolution}, self.L = {self.L}."
-            )
-            assert self.vols.resolution == L, msg
-
-        # We need to keep track of the original resolution we were initialized with,
-        # to be able to generate projections of volumes later, when we are asked to supply images.
-        self._original_L = self.L
-
-        if offsets is None:
-            offsets = self.L / 16 * randn(2, n, seed=seed).astype(dtype).T
-
-        if amplitudes is None:
-            min_, max_ = 2.0 / 3, 3.0 / 2
-            amplitudes = min_ + rand(n, seed=seed).astype(dtype) * (max_ - min_)
-
         self.C = self.vols.n_vols
 
         if states is None:
