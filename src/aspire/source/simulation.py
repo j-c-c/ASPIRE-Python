@@ -52,18 +52,15 @@ class Simulation(ImageSource):
 
         # If a Volume is not provided we default to the legacy Gaussian blob volume.
         # If a Simulation resolution is not provided, we default to L=8.
-        if vols is None:
-            if L is None:
-                _L = 8
-            else:
-                _L = L
-            _vols = LegacyVolume(
-                L=_L, C=2, symmetry_type=None, seed=self.seed, dtype=self.dtype
-            )
-            self.vols = _vols.generate()
-        else:
-            assert isinstance(vols, Volume)
-            self.vols = vols
+        self.vols = (
+            vols
+            or LegacyVolume(
+                L=L or 8, C=2, symmetry_type=None, seed=self.seed, dtype=self.dtype
+            ).generate()
+        )
+
+        if not isinstance(self.vols, Volume):
+            raise RuntimeError("`vols` should be a Volume instance or `None`.")
 
         if self.vols.dtype != self.dtype:
             logger.warning(
@@ -73,14 +70,14 @@ class Simulation(ImageSource):
             )
             self.vols = self.vols.astype(self.dtype)
 
-        if L is None:
-            self.L = self.vols.resolution
-        else:
-            msg = (
+        self.L = self.vols.resolution
+
+        # If a user provides both `L` and `vols`, resolution should match.
+        if L is None and L != self.L:
+            raise RuntimeError(
                 f"Simulation must have the same resolution as the provided Volume."
                 f" vols.resolution = {self.vols.resolution}, self.L = {self.L}."
             )
-            assert self.vols.resolution == L, msg
 
         # We need to keep track of the original resolution we were initialized with,
         # to be able to generate projections of volumes later, when we are asked to supply images.
