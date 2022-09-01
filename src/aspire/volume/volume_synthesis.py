@@ -23,8 +23,6 @@ class SyntheticVolumeBase(abc.ABC):
         """
 
     def __repr__(self):
-        # return (f'L={self.L} C={self.C} symmetry_type={self.symmetry_type}'
-        #         f' seed={self.seed} dtype={self.dtype}')
         return f"{self.__dict__}"
 
 
