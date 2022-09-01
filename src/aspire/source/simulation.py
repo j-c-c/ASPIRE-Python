@@ -73,7 +73,7 @@ class Simulation(ImageSource):
         self.L = self.vols.resolution
 
         # If a user provides both `L` and `vols`, resolution should match.
-        if L is None and L != self.L:
+        if L is not None and L != self.L:
             raise RuntimeError(
                 f"Simulation must have the same resolution as the provided Volume."
                 f" vols.resolution = {self.vols.resolution}, self.L = {self.L}."
