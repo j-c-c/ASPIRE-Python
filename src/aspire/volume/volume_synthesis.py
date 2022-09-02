@@ -45,7 +45,7 @@ class LegacyVolume(SyntheticVolumeBase):
         """
         super().__init__(L, C, symmetry_type, seed=seed, dtype=dtype)
         self.K = K
-        if self.symmetry_type is None:
+        if self.symmetry_type is not None:
             raise ValueError("symmetry_type must be None for LagacyVolume")
 
     def generate(self):
