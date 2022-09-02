@@ -131,23 +131,6 @@ class CnSymmetricVolume(SyntheticVolumeBase):
         )
 
 
-class PDBVolume(SyntheticVolumeBase):
-    """
-    Take in a PDB file and generate a volume.
-    """
-
-    def __init__(self, L, C, symmetry_type, filename, seed=None, dtype=np.float64):
-        # points = self._load_pdb(filename)
-        # super().__init__(L, C, symmetry_type, points=points, seed=seed, dtype=dtype)
-        raise NotImplementedError("PDBvolume not implemented yet.")
-
-    def _load_pdb(self, filename):
-        """
-        Return points loaded from file.
-        """
-        raise NotImplementedError("_load_pdb not implemented yet.")
-
-
 def gaussian_blob_vols(L=8, C=2, K=16, symmetry_type=None, seed=None, dtype=np.float64):
     """
     Builds gaussian blob volumes with chosen symmetry type.
