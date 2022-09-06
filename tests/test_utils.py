@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
+from parameterized import parameterized
 from pytest import raises
 
 from aspire import __version__
@@ -121,8 +122,9 @@ class UtilsTestCase(TestCase):
         self.assertTrue(np.allclose(g_2d, g_2d_scalar))
         self.assertTrue(np.allclose(g_3d, g_3d_scalar))
 
-    def testBump3d(self):
-        L = 29
+    @parameterized.expand([(29,), (30,)])
+    def testBump3d(self, L):
+        L = L
         dtype = np.float64
         a = 10
 
@@ -132,9 +134,9 @@ class UtilsTestCase(TestCase):
         bumped_volume = np.multiply(bump, volume)
 
         # Define support for volume
-        g = grid_3d(L, dtype=dtype)
-        inside = g["r"] <= 1
-        outside = g["r"] > 1
+        g = grid_3d(L, shifted=True, dtype=dtype)
+        inside = g["r"] < 1
+        outside = g["r"] >= 1
 
         # Test that volume is zero outside of support
         self.assertTrue(np.allclose(bumped_volume[outside], 0))
@@ -142,8 +144,12 @@ class UtilsTestCase(TestCase):
         # Test that volume is positive inside support
         self.assertTrue((bumped_volume[inside] > 0).all())
 
-        # Test that the center is still 1
-        self.assertTrue(np.allclose(bumped_volume[(L // 2,) * 3], 1))
+        # Test that the center is still 1 for odd resolution
+        # and close to 1 for even resolution (due to shifted grid).
+        if L % 2 == 1:
+            self.assertTrue(np.allclose(bumped_volume[(L // 2,) * 3], 1))
+        else:
+            self.assertTrue(bumped_volume[(L // 2,) * 3] > 0.99)
 
 
 class MultiProcessingUtilsTestCase(TestCase):

@@ -206,7 +206,7 @@ def bump_3d(size, spread=1, dtype=np.float64):
     :return: Numpy array (3D)
     """
     a = spread
-    g = grid_3d(size, dtype=dtype)
+    g = grid_3d(size, shifted=True, dtype=dtype)
     selection = g["r"] < 1
 
     p = g["x"] ** 2 + g["y"] ** 2 + g["z"] ** 2
