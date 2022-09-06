@@ -277,7 +277,7 @@ class VolumeTestCase(TestCase):
         vol = vol.generate()
 
         # Mask to check support
-        g_3d = grid_3d(L, dtype=dtype)
+        g_3d = grid_3d(L, shifted=True, dtype=dtype)
         inside = g_3d["r"] <= 1
         outside = g_3d["r"] > 1
 
