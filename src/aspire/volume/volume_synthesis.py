@@ -21,7 +21,15 @@ class SyntheticVolumeBase(abc.ABC):
         """
         Called to generate and return the synthetic volumes.
 
-        Each concrete subclass should impliment this.
+        Each concrete subclass should implement this.
+        """
+
+    @abc.abstractmethod
+    def _check_symmetry(self):
+        """
+        Called to check that volumes are instantiated with compatible symmetry type.
+
+        Each concrete subclass should implement this.
         """
 
     def __repr__(self):
@@ -47,8 +55,7 @@ class LegacyVolume(SyntheticVolumeBase):
         """
         super().__init__(L, C, symmetry_type, seed=seed, dtype=dtype)
         self.K = K
-        if self.symmetry_type is not None:
-            raise ValueError("symmetry_type must be None for LagacyVolume")
+        self._check_symmetry()
 
     def generate(self):
         """
@@ -62,6 +69,13 @@ class LegacyVolume(SyntheticVolumeBase):
             dtype=self.dtype,
         )
 
+    def _check_symmetry(self):
+        """
+        Checks that `symmetry_type` is set to None.
+        """
+        if self.symmetry_type is not None:
+            raise ValueError("symmetry_type must be None for LagacyVolume")
+
 
 class CompactVolume(SyntheticVolumeBase):
     """
@@ -69,7 +83,6 @@ class CompactVolume(SyntheticVolumeBase):
     """
 
     def __init__(self, L, C, symmetry_type, K=16, seed=None, dtype=np.float64):
-        super().__init__(L, C, symmetry_type, seed=seed, dtype=dtype)
         """
         :param L: Resolution of the Volume(s) in pixels.
         :param C: Number of Volumes to generate.
@@ -78,7 +91,9 @@ class CompactVolume(SyntheticVolumeBase):
         :param seed: Random seed for generating random Gaussian blobs.
         :param dtype: dtype for Volume(s)
         """
+        super().__init__(L, C, symmetry_type, seed=seed, dtype=dtype)
         self.K = K
+        self._check_symmetry()
 
     def generate(self):
         """
@@ -98,6 +113,11 @@ class CompactVolume(SyntheticVolumeBase):
 
         return Volume(vol)
 
+    def _check_symmetry(self):
+        """
+        CompactVolume volumes can have any supported symmetry.
+        """
+
 
 class CnSymmetricVolume(SyntheticVolumeBase):
     """
@@ -116,7 +136,7 @@ class CnSymmetricVolume(SyntheticVolumeBase):
         """
         super().__init__(L, C, symmetry_type, seed=seed, dtype=dtype)
         self.K = K
-        assert self.symmetry_type is not None, "Symmetry was not provided."
+        self._check_symmetry()
 
     def generate(self):
         """
@@ -129,6 +149,28 @@ class CnSymmetricVolume(SyntheticVolumeBase):
             seed=self.seed,
             dtype=self.dtype,
         )
+
+    def _check_symmetry(self):
+        """
+        Checks that `symmetry_type` is Cn.
+        """
+        if self.symmetry_type is None:
+            raise ValueError(
+                "Symmetry was not provided. symmetry_type must be 'Cn', n > 1."
+            )
+
+        if self.symmetry_type[0].upper() != "C":
+            raise ValueError(
+                f"Only 'Cn' symmetry supported. Provided symmetry was symmetry_type='{self.symmetry_type}'."
+            )
+
+        order = self.symmetry_type[1:] or None
+        try:
+            order = int(order)
+        except Exception:
+            raise NotImplementedError(
+                f"C{order} symmetry not supported. Only Cn symmetry, where n is an integer, is supported."
+            )
 
 
 def gaussian_blob_vols(L=8, C=2, K=16, symmetry_type=None, seed=None, dtype=np.float64):
