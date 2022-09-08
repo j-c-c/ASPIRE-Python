@@ -11,7 +11,7 @@ from pytest import raises, skip
 from aspire.utils import Rotation, grid_3d, powerset
 from aspire.utils.matrix import anorm
 from aspire.utils.types import utest_tolerance
-from aspire.volume import CnSymmetricVolume, CompactVolume, Volume, gaussian_blob_vols
+from aspire.volume import CnSymmetricVolume, SyntheticVolume, Volume, gaussian_blob_vols
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "saved_test_data")
 
@@ -269,11 +269,11 @@ class VolumeTestCase(TestCase):
         with raises(NotImplementedError, match=r"J type symmetry.*"):
             _ = gaussian_blob_vols(symmetry_type="junk")
 
-    def testCompactVolume(self):
+    def testSyntheticVolume(self):
         L = self.res
         dtype = self.dtype
 
-        vol = CompactVolume(L=L, C=1, symmetry_type=None, dtype=dtype)
+        vol = SyntheticVolume(L=L, C=1, symmetry_type=None, dtype=dtype)
         vol = vol.generate()
 
         # Mask to check support

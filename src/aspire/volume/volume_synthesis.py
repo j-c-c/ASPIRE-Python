@@ -77,9 +77,9 @@ class LegacyVolume(SyntheticVolumeBase):
             raise ValueError("symmetry_type must be None for LagacyVolume")
 
 
-class CompactVolume(SyntheticVolumeBase):
+class SyntheticVolume(SyntheticVolumeBase):
     """
-    A LegacyVolume or CnSymmetricVolume that has compact support within the unit sphere.
+    A volume that has compact support within the unit sphere.
     """
 
     def __init__(self, L, C, symmetry_type, K=16, seed=None, dtype=np.float64):
@@ -119,12 +119,11 @@ class CompactVolume(SyntheticVolumeBase):
         """
 
 
-class CnSymmetricVolume(SyntheticVolumeBase):
+class CnSymmetricVolume(SyntheticVolume):
     """
     A cyclically symmetric Volume constructed with random 3D Gaussian blobs.
     """
 
-    # Note this class can actually inherit everything from LegacyVolume.
     def __init__(self, L, C, symmetry_type, K=16, seed=None, dtype=np.float64):
         """
         :param L: Resolution of the Volume(s) in pixels.
@@ -137,18 +136,6 @@ class CnSymmetricVolume(SyntheticVolumeBase):
         super().__init__(L, C, symmetry_type, seed=seed, dtype=dtype)
         self.K = K
         self._check_symmetry()
-
-    def generate(self):
-        """
-        Called to generate and return an ASPIRE LegacyVolume as a Volume instance.
-        """
-        return gaussian_blob_vols(
-            L=self.L,
-            C=self.C,
-            symmetry_type=self.symmetry_type,
-            seed=self.seed,
-            dtype=self.dtype,
-        )
 
     def _check_symmetry(self):
         """
