@@ -134,8 +134,8 @@ class UtilsTestCase(TestCase):
         bumped_volume = np.multiply(bump, volume)
 
         # Define support for volume
-        g = grid_3d(L, shifted=True, dtype=dtype)
-        inside = g["r"] < 1
+        g = grid_3d(L, dtype=dtype)
+        inside = g["r"] < (L - 1) / L
         outside = g["r"] >= 1
 
         # Test that volume is zero outside of support
@@ -144,12 +144,8 @@ class UtilsTestCase(TestCase):
         # Test that volume is positive inside support
         self.assertTrue((bumped_volume[inside] > 0).all())
 
-        # Test that the center is still 1 for odd resolution
-        # and close to 1 for even resolution (due to shifted grid).
-        if L % 2 == 1:
-            self.assertTrue(np.allclose(bumped_volume[(L // 2,) * 3], 1))
-        else:
-            self.assertTrue(bumped_volume[(L // 2,) * 3] > 0.99)
+        # Test that the center is still 1
+        self.assertTrue(np.allclose(bumped_volume[(L // 2,) * 3], 1))
 
 
 class MultiProcessingUtilsTestCase(TestCase):
