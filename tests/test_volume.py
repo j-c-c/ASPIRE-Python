@@ -277,13 +277,13 @@ class VolumeTestCase(TestCase):
         vol = vol.generate()
 
         # Mask to check support
-        g_3d = grid_3d(L, shifted=True, dtype=dtype)
-        inside = g_3d["r"] <= 1
+        g_3d = grid_3d(L, dtype=dtype)
+        inside = g_3d["r"] < 1
         outside = g_3d["r"] > 1
 
         # Check that volume is zero outside of support and positive inside.
         self.assertTrue(np.allclose(vol[0][outside], 0))
-        self.assertTrue(np.sum(vol[0][inside]) > 0)
+        self.assertTrue((vol[0][inside] > 0).all())
 
     def to_vec(self):
         """Compute the to_vec method and compare."""
