@@ -38,7 +38,7 @@ class SyntheticVolumeBase(abc.ABC):
 
 class LegacyVolume(SyntheticVolumeBase):
     """
-    Legacy ASPIRE Volume constructed of 3D Gaussian blobs.
+    Legacy ASPIRE Volume constructed of random 3D Gaussian blobs.
 
     Suffers from too large point variances.
     Included for migration of legacy unit tests.
@@ -79,7 +79,7 @@ class LegacyVolume(SyntheticVolumeBase):
 
 class SyntheticVolume(SyntheticVolumeBase):
     """
-    A volume that has compact support within the unit sphere.
+    Synthetic Volume constructed of random 3D Gaussian blobs with compact support in the unit sphere.
     """
 
     def __init__(self, L, C, symmetry_type, K=16, seed=None, dtype=np.float64):
@@ -97,7 +97,7 @@ class SyntheticVolume(SyntheticVolumeBase):
 
     def generate(self):
         """
-        Generates a LegacyVolume or CnSymmetricVolume that is multiplied by a bump function
+        Generates a SyntheticVolume with specified symmetry that is multiplied by a bump function
         to give compact support within the unit sphere.
         """
         vol = gaussian_blob_vols(
@@ -108,7 +108,7 @@ class SyntheticVolume(SyntheticVolumeBase):
             dtype=self.dtype,
         )
 
-        bump_mask = bump_3d(self.L, spread=100, dtype=self.dtype)
+        bump_mask = bump_3d(self.L, spread=5, dtype=self.dtype)
         vol = np.multiply(bump_mask, vol)
 
         return Volume(vol)
@@ -121,7 +121,7 @@ class SyntheticVolume(SyntheticVolumeBase):
 
 class CnSymmetricVolume(SyntheticVolume):
     """
-    A cyclically symmetric Volume constructed with random 3D Gaussian blobs.
+    A cyclically symmetric SyntheticVolume constructed of random 3D Gaussian blobs.
     """
 
     def __init__(self, L, C, symmetry_type, K=16, seed=None, dtype=np.float64):
@@ -149,14 +149,6 @@ class CnSymmetricVolume(SyntheticVolume):
         if self.symmetry_type[0].upper() != "C":
             raise ValueError(
                 f"Only 'Cn' symmetry supported. Provided symmetry was symmetry_type='{self.symmetry_type}'."
-            )
-
-        order = self.symmetry_type[1:] or None
-        try:
-            order = int(order)
-        except Exception:
-            raise NotImplementedError(
-                f"C{order} symmetry not supported. Only Cn symmetry, where n is an integer, is supported."
             )
 
 
