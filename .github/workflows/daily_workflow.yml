@@ -25,3 +25,9 @@ jobs:
           sphinx-apidoc -f -o ./source ../src -H Modules
           make html
         working-directory: ./docs
+      - name: Archive Sphinx docs
+        uses: actions/upload-artifact@v3
+        with:
+          name: sphinx-docs
+          path: docs/build/html/index.html	  
+          retention-days: 7
