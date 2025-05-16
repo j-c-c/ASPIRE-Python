@@ -35,4 +35,4 @@ jobs:
       run: |
         pip install -e ".[dev]"
     - name: Scheduled Tests
-      run: PYTHONWARNINGS=error python -m pytest -m scheduled --durations=50 --cov=aspire --cov-report=xml
+      run: PYTHONWARNINGS=error python -m pytest -m scheduled
