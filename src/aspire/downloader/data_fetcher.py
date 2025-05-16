@@ -1,4 +1,5 @@
 import shutil
+import warnings
 
 import numpy as np
 import pooch
@@ -33,14 +34,31 @@ def fetch_data(dataset_name):
     file in local storage doesn’t match the one in the registry, will download a
     new copy of the file. This is considered a sign that the file was updated in
     the remote storage. If the hash of the downloaded file still doesn’t match the
-    one in the registry, will raise an exception to warn of possible file corruption.
+    one in the registry, will warn user of possible file corruption.
 
     :param dataset_name: The file name (as appears in the registry) to
         fetch from local storage.
     :return: The absolute path (including the file name) of the file in
         local storage.
     """
-    return _data_fetcher.fetch(dataset_name)
+    try:
+        return _data_fetcher.fetch(dataset_name)
+    except ValueError:
+        warnings.warn(
+            f"Hash mismatch for {dataset_name}, proceeding with download. "
+            "Source file may have been updated.",
+            UserWarning,
+            stacklevel=1,
+        )
+
+        # force download without hash check
+        url = _data_fetcher.get_url(dataset_name)
+        return pooch.retrieve(
+            url=url,
+            known_hash=None,
+            fname=dataset_name,
+            path=_data_fetcher.path,
+        )
 
 
 def download_all():

@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 import shutil
@@ -16,6 +17,8 @@ from aspire.noise import WhiteNoiseEstimator
 from aspire.source import BoxesCoordinateSource, CentersCoordinateSource
 from aspire.storage import StarFile
 from aspire.utils import RelionStarFile, importlib_path
+
+logger = logging.getLogger(__name__)
 
 
 class CoordinateSourceTestCase(TestCase):
@@ -696,3 +699,50 @@ class CoordinateSourceTestCase(TestCase):
         self.assertTrue(result_coord.exit_code == 0)
         self.assertTrue(result_star.exit_code == 0)
         self.assertTrue(result_preprocess.exit_code == 0)
+
+
+def create_test_rectangular_micrograph_and_star(tmp_path, voxel_size=(2.0, 2.0, 1.0)):
+    # Create a rectangular micrograph (e.g., 128x256)
+    data = np.random.rand(128, 256).astype(np.float32)
+    mrc_path = tmp_path / "test_micrograph.mrc"
+
+    with mrcfile.new(mrc_path, overwrite=True) as mrc:
+        mrc.set_data(data)
+        mrc.voxel_size = voxel_size
+
+    # Two sample coordinates
+    coordinates = [(50.0, 30.0), (200.0, 100.0)]
+
+    # Write a simple STAR file
+    star_path = tmp_path / "test_coordinates.star"
+    with open(star_path, "w") as f:
+        f.write("data_particles\n\n")
+        f.write("loop_\n")
+        f.write("_rlnCoordinateX #1\n")
+        f.write("_rlnCoordinateY #2\n")
+        for x, y in coordinates:
+            f.write(f"{x:.1f} {y:.1f}\n")
+
+    # Pack files into a list of tuples for consumption by CoordinatSource
+    file_list = [(mrc_path, star_path)]
+
+    return file_list
+
+
+def test_rectangular_coordinate_source(tmp_path):
+    file_list = create_test_rectangular_micrograph_and_star(tmp_path)
+
+    # Check we can instantiate a CoordinateSource with a rectangular micrograph.
+    coord_src = CentersCoordinateSource(file_list, particle_size=32)
+
+    # Check we can access images.
+    _ = coord_src.images[:]
+
+
+def test_coordinate_source_pixel_warning(tmp_path, caplog):
+    # Create micrograph with mismatched pixel dimensions.
+    vx = (2.3, 2.1, 1.0)
+    file_list = create_test_rectangular_micrograph_and_star(tmp_path, voxel_size=vx)
+    with caplog.at_level(logging.WARNING):
+        _ = CentersCoordinateSource(file_list, particle_size=32)
+        assert "Voxel sizes are not uniform" in caplog.text
