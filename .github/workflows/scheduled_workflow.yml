@@ -1,8 +1,6 @@
 name: ASPIRE Python Scheduled Workflow
 
 on:
-  schedule:
-    - cron: '*/10 * * * *'  # Every Sunday at 00:15 UTC
 
 
 jobs:
